@@ -30,7 +30,6 @@ public class TagTrackingClientHandler extends Thread {
                 out.println(inputLine);
             }
 
-
             in.close();
             out.close();
             tagTrackingClientSocket.close();
