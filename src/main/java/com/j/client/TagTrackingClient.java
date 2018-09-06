@@ -39,7 +39,6 @@ public class TagTrackingClient {
             clientSocket.close();
         } catch (IOException e) {
             System.out.println("Error when closing");
-
         }
     }
 }
