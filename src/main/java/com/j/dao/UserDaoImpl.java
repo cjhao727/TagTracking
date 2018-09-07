@@ -2,12 +2,12 @@ package com.j.dao;
 
 import com.j.domain.UserTagData;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class UserDaoImpl implements Dao<UserTagData> {
-    //mimic DB
-    private List<UserTagData> userTagData = new ArrayList<>();
+    //mimic DB, thread Safe list
+    private List<UserTagData> userTagData = new CopyOnWriteArrayList<>();
 
     @Override
     public List<UserTagData> getAll() {

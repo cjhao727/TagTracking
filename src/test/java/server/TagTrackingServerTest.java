@@ -25,49 +25,12 @@ public class TagTrackingServerTest {
         Thread.sleep(500);
     }
 
-//    @Test
-//    public void givenClientOneTest() {
-//        TagTrackingClient tagTrackingClient = new TagTrackingClient();
-//        tagTrackingClient.startConnection(LOCAL_HOST, port);
-//
-//        String msg1 = tagTrackingClient.sendMessage("hello");
-//        String msg2 = tagTrackingClient.sendMessage("world");
-//        String terminate = tagTrackingClient.sendMessage(".");
-//
-//        assertEquals(msg1, "hello");
-//        assertEquals(msg2, "world");
-//        assertEquals(terminate, "bye");
-//        tagTrackingClient.stopConnection();
-//    }
-//
-//    @Test
-//    public void givenTwoClientsTest() {
-//        TagTrackingClient c1 = new TagTrackingClient();
-//        c1.startConnection(LOCAL_HOST, port);
-//
-//        TagTrackingClient c2= new TagTrackingClient();
-//        c2.startConnection(LOCAL_HOST, port);
-//
-//        String msgC1 = c1.sendMessage("hello");
-//        String msgC2 = c2.sendMessage("world");
-//        String c1terminate = c1.sendMessage(".");
-//        String c2terminate = c2.sendMessage(".");
-//
-//        assertEquals(msgC1, "hello");
-//        assertEquals(msgC2, "world");
-//        assertEquals(c1terminate, "bye");
-//        assertEquals(c2terminate, "bye");
-//
-//        c1.stopConnection();
-//        c2.stopConnection();
-//    }
-
     @Test
     public void givenJsonString() {
         TagTrackingClient tagTrackingClient = new TagTrackingClient();
         tagTrackingClient.startConnection(LOCAL_HOST, port);
 
-        String jsonInput = "{\"user\": \"Secret Squirrel\", \"add\": [\"beyhive_member\", \"timbers_army\", \"jojo\"], \"remove\": [\"maodan\"], \"timestamp\": \"2018-08-10T06:49:04.440Z\"}";
+        String jsonInput = "{\"user\": \"Secret Squirrel\", \"add\": [\"beyhive_member\", \"timbers_army\", \"jojo\", \"maodan\"], \"remove\": [\"maodan\"], \"timestamp\": \"2018-08-10T06:49:04.440Z\"}";
         String jsonMsg = tagTrackingClient.sendMessage(jsonInput);
         String terminate = tagTrackingClient.sendMessage(".");
 

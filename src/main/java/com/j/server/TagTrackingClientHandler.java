@@ -17,7 +17,6 @@ import java.net.Socket;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class TagTrackingClientHandler extends Thread {
     private Socket tagTrackingClientSocket;
@@ -44,28 +43,9 @@ public class TagTrackingClientHandler extends Thread {
 
                 //todo: concurrentHashMap <user, set<tag>>
                 TagRequest tagRequest = gson.fromJson(inputLine, TagRequest.class);
-
-                String userId = tagRequest.getUser();
-                List<UserTagData> userTagDataList = userDao.getAll();
-
-                Optional<UserTagData> existingUserTagData = userTagDataList.stream().filter(userTagData -> userTagData.getUserId().equals(userId)).findFirst();
-
-                if (userTagDataList.size() == 0 || !existingUserTagData.isPresent()) {
-                    userDao.add(new UserTagData(userId, tagRequest.getAdd()));
-                }
-
-                Set<String> tagSetOfUser = userDao.getUserById(tagRequest.getUser()).getTagSet();
-
-                tagRequest.getAdd().forEach(tagSetOfUser::add);
-                tagRequest.getRemove().forEach(tag -> tagSetOfUser.removeIf(existingTag -> existingTag.equals(tag)));
-//                tagRequest.getRemove().forEach(tagSetOfUser::remove);
-
-//                List<String> tags = tagRequest.getAdd().stream().distinct().collect(Collectors.toList());
-//                tagRequest.getRemove().forEach(t -> tags.removeIf(tag -> tag.equals(t)));
-
-                TagResponse tagResponse = new TagResponse(tagRequest.getUser(), tagSetOfUser);
-                String tagResponseJson = gson.toJson(tagResponse);
-                out.println(tagResponseJson);
+                Set<String> tagSetOfUser = getTagSetOfUser(tagRequest);
+                updateTagSetOfUser(tagRequest, tagSetOfUser);
+                buildJsonOutput(out, gson, tagRequest, tagSetOfUser);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -74,5 +54,35 @@ public class TagTrackingClientHandler extends Thread {
             String jsonErrorMessage = new Gson().toJson(errorResponse);
             System.out.println(jsonErrorMessage);
         }
+    }
+
+    private Set<String> getTagSetOfUser(TagRequest tagRequest) {
+        ifUserAbsentThenAdd(tagRequest);
+        return userDao.getUserById(tagRequest.getUser()).getTagSet();
+    }
+
+    private void ifUserAbsentThenAdd(TagRequest tagRequest) {
+        String userId = tagRequest.getUser();
+
+        List<UserTagData> userTagDataList = userDao.getAll();
+        Optional<UserTagData> existingUserTagData = userTagDataList
+                .stream()
+                .filter(userTagData -> userTagData.getUserId().equals(userId))
+                .findFirst();
+
+        if (userTagDataList.size() == 0 || !existingUserTagData.isPresent()) {
+            userDao.add(new UserTagData(userId, tagRequest.getAdd()));
+        }
+    }
+
+    private void updateTagSetOfUser(TagRequest tagRequest, Set<String> tagSetOfUser) {
+        tagSetOfUser.addAll(tagRequest.getAdd());
+        tagRequest.getRemove().forEach(tagSetOfUser::remove);
+    }
+
+    private void buildJsonOutput(PrintWriter out, Gson gson, TagRequest tagRequest, Set<String> tagSetOfUser) {
+        TagResponse tagResponse = new TagResponse(tagRequest.getUser(), tagSetOfUser);
+        String tagResponseJson = gson.toJson(tagResponse);
+        out.println(tagResponseJson);
     }
 }
