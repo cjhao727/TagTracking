@@ -1,7 +1,12 @@
 package com.j.server;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+import com.j.dao.Dao;
+import com.j.dao.UserDaoImpl;
+import com.j.domain.UserTagData;
 import com.j.domain.request.TagRequest;
+import com.j.domain.response.ErrorResponse;
 import com.j.domain.response.TagResponse;
 
 import java.io.BufferedReader;
@@ -10,9 +15,13 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class TagTrackingClientHandler extends Thread {
     private Socket tagTrackingClientSocket;
+    private Dao<UserTagData> userDao = new UserDaoImpl();
 
     public TagTrackingClientHandler(Socket socket) {
         this.tagTrackingClientSocket = socket;
@@ -25,20 +34,45 @@ public class TagTrackingClientHandler extends Thread {
                 BufferedReader in = new BufferedReader(new InputStreamReader(tagTrackingClientSocket.getInputStream()))
         ) {
             String inputLine;
+            Gson gson = new Gson();
             while ((inputLine = in.readLine()) != null) {
+
                 if (".".equals(inputLine)) {
                     out.println("bye");
                     break;
                 }
-                TagRequest tagRequest = new Gson().fromJson(inputLine, TagRequest.class);
-                List<String> tags = tagRequest.getAdd();
-                tagRequest.getRemove().forEach(t -> tags.removeIf(tag -> tag.equals(t)));
-                TagResponse tagResponse = new TagResponse(tagRequest.getUser(), tags);
-                String tagResponseJson = new Gson().toJson(tagResponse);
+
+                //todo: concurrentHashMap <user, set<tag>>
+                TagRequest tagRequest = gson.fromJson(inputLine, TagRequest.class);
+
+                String userId = tagRequest.getUser();
+                List<UserTagData> userTagDataList = userDao.getAll();
+
+                Optional<UserTagData> existingUserTagData = userTagDataList.stream().filter(userTagData -> userTagData.getUserId().equals(userId)).findFirst();
+
+                if (userTagDataList.size() == 0 || !existingUserTagData.isPresent()) {
+                    userDao.add(new UserTagData(userId, tagRequest.getAdd()));
+                }
+
+                Set<String> tagSetOfUser = userDao.getUserById(tagRequest.getUser()).getTagSet();
+
+                tagRequest.getAdd().forEach(tagSetOfUser::add);
+                tagRequest.getRemove().forEach(tag -> tagSetOfUser.removeIf(existingTag -> existingTag.equals(tag)));
+//                tagRequest.getRemove().forEach(tagSetOfUser::remove);
+
+//                List<String> tags = tagRequest.getAdd().stream().distinct().collect(Collectors.toList());
+//                tagRequest.getRemove().forEach(t -> tags.removeIf(tag -> tag.equals(t)));
+
+                TagResponse tagResponse = new TagResponse(tagRequest.getUser(), tagSetOfUser);
+                String tagResponseJson = gson.toJson(tagResponse);
                 out.println(tagResponseJson);
             }
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (JsonSyntaxException e) {
+            ErrorResponse errorResponse = new ErrorResponse(e.getMessage());
+            String jsonErrorMessage = new Gson().toJson(errorResponse);
+            System.out.println(jsonErrorMessage);
         }
     }
 }

@@ -72,10 +72,23 @@ public class TagTrackingServerTest {
         String terminate = tagTrackingClient.sendMessage(".");
 
         String jsonOutput = "{\"user\":\"Secret Squirrel\",\"tags\":[\"beyhive_member\",\"timbers_army\",\"jojo\"]}";
-        assertEquals(jsonMsg, jsonOutput);
+        assertEquals(jsonOutput, jsonMsg);
         assertEquals(terminate, "bye");
         tagTrackingClient.stopConnection();
     }
 
+    @Test
+    public void givenInValidJsonString() {
+        TagTrackingClient tagTrackingClient = new TagTrackingClient();
+        tagTrackingClient.startConnection(LOCAL_HOST, port);
+
+//        String testJsonMsg = tagTrackingClient.sendMessage("({})");
+//        String terminate = tagTrackingClient.sendMessage(".");
+//
+//        String expectedJsonOutput = "{\"error\":\"Expected BEGIN_OBJECT but was STRING at line 1 column 1 path $\"}";
+//        assertEquals(expectedJsonOutput, testJsonMsg);
+//        assertEquals(terminate, "bye");
+//        tagTrackingClient.stopConnection();
+    }
 
 }

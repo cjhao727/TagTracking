@@ -1,4 +1,4 @@
-package com.j.domain.response;
+package com.j.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,9 +8,9 @@ import lombok.Setter;
 import java.util.Set;
 
 @Getter @Setter
-@NoArgsConstructor
 @AllArgsConstructor
-public class TagResponse {
-    private String user;
-    private Set<String> tags;
+@NoArgsConstructor
+public class UserTagData {
+    private String userId;
+    private Set<String> tagSet;
 }

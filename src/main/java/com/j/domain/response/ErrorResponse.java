@@ -5,12 +5,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Set;
-
-@Getter @Setter
+@Setter @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class TagResponse {
-    private String user;
-    private Set<String> tags;
+public class ErrorResponse {
+    private String error;
 }

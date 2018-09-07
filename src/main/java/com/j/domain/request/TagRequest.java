@@ -4,13 +4,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
+import java.util.Set;
 
 @Getter @Setter
 @NoArgsConstructor
 public class TagRequest {
     private String user;
-    private List<String> add;
-    private List<String> remove;
+    private Set<String> add;
+    private Set<String> remove;
     private String timestamp;
 }
