@@ -32,7 +32,9 @@ public class TagTrackingServerTest {
         tagTrackingClient.startConnection(LOCALHOST, port);
 
         String jsonInput = "{\"user\": \"Secret Squirrel\", \"add\": [\"beyhive_member\", \"timbers_army\", \"jojo\", \"maodan\"], \"remove\": [\"maodan\"], \"timestamp\": \"2018-08-10T06:49:04.440Z\"}";
+        String jsonInput2 = "{\"user\": \"Secret Squirrel\", \"add\": [\"beyhive_member\", \"timbers_army\", \"jojo\", \"maodan\"], \"remove\": [\"jojo\"], \"timestamp\": \"2018-08-10T06:49:04.440Z\"}";
         String jsonMsg = tagTrackingClient.sendMessage(jsonInput);
+        String jsonMsg2 = tagTrackingClient.sendMessage(jsonInput2);
         String terminate = tagTrackingClient.sendMessage(".");
 
         String jsonOutput = "{\"user\":\"Secret Squirrel\",\"tags\":[\"beyhive_member\",\"timbers_army\",\"jojo\"]}";
@@ -46,13 +48,10 @@ public class TagTrackingServerTest {
         TagTrackingClient tagTrackingClient = new TagTrackingClient();
         tagTrackingClient.startConnection(LOCALHOST, port);
 
-//        String testJsonMsg = tagTrackingClient.sendMessage("({})");
-//        String terminate = tagTrackingClient.sendMessage(".");
-//
-//        String expectedJsonOutput = "{\"error\":\"Expected BEGIN_OBJECT but was STRING at line 1 column 1 path $\"}";
-//        assertEquals(expectedJsonOutput, testJsonMsg);
-//        assertEquals(terminate, "bye");
-//        tagTrackingClient.stopConnection();
+        String testJsonMsg = tagTrackingClient.sendMessage("({})");
+        String expectedJsonOutput = "{\"error\":\"java.lang.IllegalStateException: Expected BEGIN_OBJECT but was STRING at line 1 column 1 path $\"}";
+        assertEquals(expectedJsonOutput, testJsonMsg);
+        tagTrackingClient.stopConnection();
     }
 
 }

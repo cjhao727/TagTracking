@@ -2,6 +2,7 @@ package com.j.server;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+
 import com.j.dao.Dao;
 import com.j.dao.UserDaoImpl;
 import com.j.domain.UserRecord;
@@ -22,6 +23,9 @@ import java.util.stream.Collectors;
 public class TagTrackingClientHandler extends Thread {
     private Socket tagTrackingClientSocket;
     private Dao<UserRecord> userDao = new UserDaoImpl();
+    private Gson gson;
+    private PrintWriter out;
+    private BufferedReader in;
 
     public TagTrackingClientHandler(Socket socket) {
         this.tagTrackingClientSocket = socket;
@@ -29,12 +33,14 @@ public class TagTrackingClientHandler extends Thread {
 
     @Override
     public void run() {
-        try (
+        try /*(
                 PrintWriter out = new PrintWriter(tagTrackingClientSocket.getOutputStream(), true);
                 BufferedReader in = new BufferedReader(new InputStreamReader(tagTrackingClientSocket.getInputStream()))
-        ) {
+        ) */{
+            out = new PrintWriter(tagTrackingClientSocket.getOutputStream(), true);
+            in = new BufferedReader(new InputStreamReader(tagTrackingClientSocket.getInputStream()));
             String inputLine;
-            Gson gson = new Gson();
+            gson = new Gson();
             while ((inputLine = in.readLine()) != null) {
                 if (".".equals(inputLine)) {
                     out.println("bye");
@@ -59,17 +65,27 @@ public class TagTrackingClientHandler extends Thread {
 
                 //execute operations to update the record
                 UserRecord userRecord = userDao.getUserById(userId);
+
+                tagsNeedToAdd = tagsNeedToAdd.stream().filter(tag -> !userRecord.getTagCollection().contains(tag)).collect(Collectors.toList());
                 userRecord.getTagCollection().addAll(tagsNeedToAdd);
+
                 //It's not an error to attempt to remove from a user a tag that it does not currently have.
                 userRecord.getTagCollection().removeAll(tagsNeedToRemove);
 
                 //build json response
-                buildJsonResponse(out, gson, userId, userRecord);
+                buildJsonResponse(out, userId, userRecord);
+
+                // sweep
+                in.close();
+                out.close();
             }
         } catch (IOException e) {
             e.printStackTrace();
         } catch (JsonSyntaxException e) {
-            buildErrorJsonResponse(e);
+            //If any issues arise, such as a request cannot be parsed, the server should instead write an error response JSON body, compressed to one line
+            String errorJsonResponse = buildErrorJsonResponse(e);
+            out.println(errorJsonResponse);
+            out.close();
         }
     }
 
@@ -82,15 +98,14 @@ public class TagTrackingClientHandler extends Thread {
         }
     }
 
-    private void buildJsonResponse(PrintWriter out, Gson gson, String userId, UserRecord userRecord) {
+    private void buildJsonResponse(PrintWriter out, String userId, UserRecord userRecord) {
         TagResponse tagResponse = new TagResponse(userId, userRecord.getTagCollection());
         String tagResponseJson = gson.toJson(tagResponse);
         out.println(tagResponseJson);
     }
 
-    private void buildErrorJsonResponse(JsonSyntaxException e) {
+    private String buildErrorJsonResponse(JsonSyntaxException e) {
         ErrorResponse errorResponse = new ErrorResponse(e.getMessage());
-        String jsonErrorMessage = new Gson().toJson(errorResponse);
-        System.out.println(jsonErrorMessage);
+        return gson.toJson(errorResponse);
     }
 }
