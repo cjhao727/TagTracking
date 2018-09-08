@@ -42,10 +42,6 @@ public class TagTrackingClientHandler extends Thread {
             String inputLine;
             gson = new Gson();
             while ((inputLine = in.readLine()) != null) {
-                if (".".equals(inputLine)) {
-                    out.println("bye");
-                    break;
-                }
 
                 // get request
                 TagRequest tagRequest = gson.fromJson(inputLine, TagRequest.class);
@@ -74,10 +70,6 @@ public class TagTrackingClientHandler extends Thread {
 
                 //build json response
                 buildJsonResponse(out, userId, userRecord);
-
-                // sweep
-                in.close();
-                out.close();
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -85,7 +77,6 @@ public class TagTrackingClientHandler extends Thread {
             //If any issues arise, such as a request cannot be parsed, the server should instead write an error response JSON body, compressed to one line
             String errorJsonResponse = buildErrorJsonResponse(e);
             out.println(errorJsonResponse);
-            out.close();
         }
     }
 

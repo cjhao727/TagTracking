@@ -25,7 +25,7 @@ public class TagTrackingServerTest {
         Thread.sleep(500);
     }
 
-    //single request - one user
+    //single/multiple request(s) - one user
     @Test
     public void givenJsonString() {
         TagTrackingClient tagTrackingClient = new TagTrackingClient();
@@ -35,11 +35,13 @@ public class TagTrackingServerTest {
         String jsonInput2 = "{\"user\": \"Secret Squirrel\", \"add\": [\"beyhive_member\", \"timbers_army\", \"jojo\", \"maodan\"], \"remove\": [\"jojo\"], \"timestamp\": \"2018-08-10T06:49:04.440Z\"}";
         String jsonMsg = tagTrackingClient.sendMessage(jsonInput);
         String jsonMsg2 = tagTrackingClient.sendMessage(jsonInput2);
-        String terminate = tagTrackingClient.sendMessage(".");
 
         String jsonOutput = "{\"user\":\"Secret Squirrel\",\"tags\":[\"beyhive_member\",\"timbers_army\",\"jojo\"]}";
+        String jsonOutput2 = "{\"user\":\"Secret Squirrel\",\"tags\":[\"beyhive_member\",\"timbers_army\",\"maodan\"]}";
+
         assertEquals(jsonOutput, jsonMsg);
-        assertEquals(terminate, "bye");
+        assertEquals(jsonOutput2, jsonMsg2);
+
         tagTrackingClient.stopConnection();
     }
 
