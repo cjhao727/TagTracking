@@ -25,7 +25,6 @@ public class TagTrackingClientHandler extends Thread {
     private Dao<UserRecord> userDao = new UserDaoImpl();
     private Gson gson;
     private PrintWriter out;
-    private BufferedReader in;
 
     public TagTrackingClientHandler(Socket socket) {
         this.tagTrackingClientSocket = socket;
@@ -33,12 +32,9 @@ public class TagTrackingClientHandler extends Thread {
 
     @Override
     public void run() {
-        try /*(
-                PrintWriter out = new PrintWriter(tagTrackingClientSocket.getOutputStream(), true);
-                BufferedReader in = new BufferedReader(new InputStreamReader(tagTrackingClientSocket.getInputStream()))
-        ) */{
+        try {
             out = new PrintWriter(tagTrackingClientSocket.getOutputStream(), true);
-            in = new BufferedReader(new InputStreamReader(tagTrackingClientSocket.getInputStream()));
+            BufferedReader in = new BufferedReader(new InputStreamReader(tagTrackingClientSocket.getInputStream()));
             String inputLine;
             gson = new Gson();
             while ((inputLine = in.readLine()) != null) {
