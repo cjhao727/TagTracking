@@ -1,27 +1,27 @@
 package com.j.dao;
 
-import com.j.domain.UserTagData;
+import com.j.domain.UserRecord;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class UserDaoImpl implements Dao<UserTagData> {
+public class UserDaoImpl implements Dao<UserRecord> {
     //mimic DB, thread Safe list
-    private List<UserTagData> userTagData = new CopyOnWriteArrayList<>();
+    private List<UserRecord> userTagData = new CopyOnWriteArrayList<>();
 
     @Override
-    public List<UserTagData> getAll() {
+    public List<UserRecord> getAll() {
         return userTagData;
     }
 
     @Override
-    public void add(UserTagData userTagData) {
-        this.userTagData.add(userTagData);
+    public void add(UserRecord userRecord) {
+        this.userTagData.add(userRecord);
     }
 
     @Override
-    public UserTagData getUserById(String userId) {
+    public UserRecord getUserById(String userId) {
         // assume always have one match
-        return userTagData.stream().filter(userTagData -> userTagData.getUserId().equals(userId)).findFirst().get();
+        return userTagData.stream().filter(userRecord -> userRecord.getUserId().equals(userId)).findFirst().get();
     }
 }

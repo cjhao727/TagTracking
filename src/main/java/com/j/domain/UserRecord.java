@@ -5,12 +5,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Set;
+import java.util.List;
 
 @Getter @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserTagData {
+public class UserRecord {
     private String userId;
-    private Set<String> tagSet;
+    private List<String> tagCollection;
 }

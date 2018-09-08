@@ -13,7 +13,7 @@ import static org.junit.Assert.assertEquals;
 
 public class TagTrackingServerTest {
     private static int port;
-    private static final String LOCAL_HOST = "127.0.0.1";
+    private static final String LOCALHOST = "127.0.0.1";
 
     @BeforeClass
     public static void start() throws InterruptedException, IOException {
@@ -25,10 +25,11 @@ public class TagTrackingServerTest {
         Thread.sleep(500);
     }
 
+    //single request - one user
     @Test
     public void givenJsonString() {
         TagTrackingClient tagTrackingClient = new TagTrackingClient();
-        tagTrackingClient.startConnection(LOCAL_HOST, port);
+        tagTrackingClient.startConnection(LOCALHOST, port);
 
         String jsonInput = "{\"user\": \"Secret Squirrel\", \"add\": [\"beyhive_member\", \"timbers_army\", \"jojo\", \"maodan\"], \"remove\": [\"maodan\"], \"timestamp\": \"2018-08-10T06:49:04.440Z\"}";
         String jsonMsg = tagTrackingClient.sendMessage(jsonInput);
@@ -43,7 +44,7 @@ public class TagTrackingServerTest {
     @Test
     public void givenInValidJsonString() {
         TagTrackingClient tagTrackingClient = new TagTrackingClient();
-        tagTrackingClient.startConnection(LOCAL_HOST, port);
+        tagTrackingClient.startConnection(LOCALHOST, port);
 
 //        String testJsonMsg = tagTrackingClient.sendMessage("({})");
 //        String terminate = tagTrackingClient.sendMessage(".");

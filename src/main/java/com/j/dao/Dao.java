@@ -1,6 +1,6 @@
 package com.j.dao;
 
-import com.j.domain.UserTagData;
+import com.j.domain.UserRecord;
 
 import java.util.List;
 
@@ -9,5 +9,5 @@ public interface Dao<T> {
 
     void add(T t);
 
-    UserTagData getUserById(String userId);
+    UserRecord getUserById(String userId);
 }
