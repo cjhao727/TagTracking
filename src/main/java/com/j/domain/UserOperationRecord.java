@@ -8,10 +8,10 @@ import lombok.Setter;
 import java.util.List;
 
 @Getter @Setter
-@AllArgsConstructor
 @NoArgsConstructor
-public class UserRecord {
-    private String userId;
-    private List<UserOperationRecord> userOperationRecords;
-    private List<String> tagCollection;
+@AllArgsConstructor
+public class UserOperationRecord {
+    private String timestamp;
+    private List<String> addOperation;
+    private List<String> removeOperation;
 }

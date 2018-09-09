@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.j.dao.Dao;
 import com.j.dao.UserDaoImpl;
+import com.j.domain.UserOperationRecord;
 import com.j.domain.UserRecord;
 import com.j.domain.request.TagRequest;
 import com.j.domain.response.ErrorResponse;
@@ -15,6 +16,8 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -39,31 +42,61 @@ public class TagTrackingClientHandler extends Thread {
             while ((inputLine = in.readLine()) != null) {
                 // get request
                 TagRequest tagRequest = gson.fromJson(inputLine, TagRequest.class);
-
-                // get userId
-                String userId = tagRequest.getUser();
-                // check if user exists, if not add
-                ifUserRecordAbsentThenAdd(userId);
-
-                // process operations of request
+                // extract info from request
+                String currentUserId = tagRequest.getUser();
+                String currentRequestTime = tagRequest.getTimestamp();
                 //1) If a tag appears multiple times in either ​add​ or ​remove​, it's equivalent to appearing once.
-                List<String> tagsNeedToAdd = tagRequest.getAdd().stream().distinct().collect(Collectors.toList());
-                List<String> tagsNeedToRemove = tagRequest.getRemove().stream().distinct().collect(Collectors.toList());
-
+                List<String> currentAddOps = tagRequest.getAdd();
+                currentAddOps = currentAddOps.stream().distinct().collect(Collectors.toList());
+                List<String> currentRemoveOps = tagRequest.getRemove();
+                currentRemoveOps = currentRemoveOps.stream().distinct().collect(Collectors.toList());
                 //2) If a tag appears in both ​add​ and ​remove​ it should be treated as if it only appeared in ​remove​.
-                tagsNeedToAdd.removeAll(tagsNeedToRemove);
+                currentAddOps.removeAll(currentRemoveOps);
 
-                //execute operations to update the record
-                UserRecord userRecord = userDao.getUserById(userId);
+                UserOperationRecord currentUserOperationRecord = new UserOperationRecord(currentRequestTime, currentAddOps, currentRemoveOps);
+                List<UserOperationRecord> currentUserOpRecords = new ArrayList<>();
+                currentUserOpRecords.add(currentUserOperationRecord);
+                UserRecord currentUserRecord = new UserRecord(currentUserId, currentUserOpRecords, new ArrayList<>());
 
-                tagsNeedToAdd = tagsNeedToAdd.stream().filter(tag -> !userRecord.getTagCollection().contains(tag)).collect(Collectors.toList());
-                userRecord.getTagCollection().addAll(tagsNeedToAdd);
+                //check if current user record exits, if not build response directly.
+                List<UserRecord> existingUserRecords = userDao.getAll();
+                Optional<UserRecord> targetUserRecord = existingUserRecords.stream()
+                        .filter(userRecord -> userRecord.getUserId().equals(currentUserRecord.getUserId()))
+                        .findFirst();
+                if (existingUserRecords.isEmpty() || !targetUserRecord.isPresent()) {
+                    userDao.add(currentUserRecord);
+                    currentUserRecord.getTagCollection().addAll(currentAddOps);
+                    currentUserRecord.getTagCollection().removeAll(currentRemoveOps);
 
-                //It's not an error to attempt to remove from a user a tag that it does not currently have.
-                userRecord.getTagCollection().removeAll(tagsNeedToRemove);
+                    TagResponse tagResponse = new TagResponse(
+                            currentUserId,
+                            currentUserRecord
+                                    .getTagCollection()
+                                    .stream()
+                                    .distinct()
+                                    .collect(Collectors.toList()));
+                    out.println(gson.toJson(tagResponse));
+                } else {
+                    // tricky part to build json response, now just focus on in order requests, todo: out of order
+                    targetUserRecord.get().getUserOperationRecords().add(new UserOperationRecord(currentRequestTime, currentAddOps, currentRemoveOps));
 
-                //build json response
-                buildJsonResponse(out, userId, userRecord);
+                    targetUserRecord.get().getUserOperationRecords().sort(Comparator.comparing(UserOperationRecord::getTimestamp));
+
+                    targetUserRecord.get().getUserOperationRecords().forEach(record -> {
+                        targetUserRecord.get().getTagCollection().addAll(record.getAddOperation());
+                        targetUserRecord.get().getTagCollection().removeAll(record.getRemoveOperation());
+                    });
+
+                    TagResponse tagResponse = new TagResponse(
+                            currentUserId,
+                            targetUserRecord.get()
+                                    .getTagCollection()
+                                    .stream()
+                                    .distinct()
+                                    .collect(Collectors.toList()));
+                    out.println(gson.toJson(tagResponse));
+
+                }
             }
 
             in.close();
@@ -77,21 +110,6 @@ public class TagTrackingClientHandler extends Thread {
             String errorJsonResponse = buildErrorJsonResponse(e);
             out.println(errorJsonResponse);
         }
-    }
-
-    private void ifUserRecordAbsentThenAdd(String userId) {
-        List<UserRecord> userRecords = userDao.getAll();
-        Optional<UserRecord> existingUserRecord = userRecords.stream().filter(userRecord -> userRecord.getUserId().equals(userId)).findFirst();
-        if (userRecords.isEmpty() || !existingUserRecord.isPresent()) {
-            UserRecord userRecord = new UserRecord(userId, new ArrayList<>());
-            userDao.add(userRecord);
-        }
-    }
-
-    private void buildJsonResponse(PrintWriter out, String userId, UserRecord userRecord) {
-        TagResponse tagResponse = new TagResponse(userId, userRecord.getTagCollection());
-        String tagResponseJson = gson.toJson(tagResponse);
-        out.println(tagResponseJson);
     }
 
     private String buildErrorJsonResponse(JsonSyntaxException e) {
