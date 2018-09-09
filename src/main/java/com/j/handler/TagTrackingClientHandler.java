@@ -1,8 +1,7 @@
-package com.j.server;
+package com.j.handler;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-
 import com.j.dao.Dao;
 import com.j.dao.UserDaoImpl;
 import com.j.domain.UserRecord;
@@ -38,7 +37,6 @@ public class TagTrackingClientHandler extends Thread {
             String inputLine;
             gson = new Gson();
             while ((inputLine = in.readLine()) != null) {
-
                 // get request
                 TagRequest tagRequest = gson.fromJson(inputLine, TagRequest.class);
 
@@ -67,6 +65,11 @@ public class TagTrackingClientHandler extends Thread {
                 //build json response
                 buildJsonResponse(out, userId, userRecord);
             }
+
+            in.close();
+            out.close();
+            tagTrackingClientSocket.close();
+
         } catch (IOException e) {
             e.printStackTrace();
         } catch (JsonSyntaxException e) {
