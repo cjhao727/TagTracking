@@ -43,6 +43,20 @@ Regard to TagRequest and TagResponse, I am considering Set<> and List<>. But I d
   the request history.
 
 ---
+#### Assumption
+- If a tag is added and removed in the same millisecond, it should be treated as removed.
+
+    I assume the request should look like this
+    ```json
+    {"user": "Siri", "add": ["jojo"], "remove": ["jojo"], "timestamp": "2018-08-10T06:49:04.420Z"}
+    ```
+    And the following case won't need to be handled.
+    ```json
+    {"user": "Siri", "add": ["jojo"], "remove": [], "timestamp": "2018-08-10T06:49:04.420Z"}
+    {"user": "Siri", "add": [], "remove": ["jojo"], "timestamp": "2018-08-10T06:49:04.420Z"}
+    ```
+
+---
 #### Ready to code
 
 Start my Maven project.
@@ -127,4 +141,7 @@ Due to the time, here are some items I think I could improve in the future.
 - Error handling. During my manual test, I found my application cannot handle empty input very well.
 - Automated test. I'd like to add more test case to increase the code coverage.
 - If I get time, I'd like to play with NIO2 to build the application.
-- Refactor my current more to follow best coding and naming practices.
+- Refactor my current more to follow best coding and naming practices. 
+- May need a better understanding of "If two requests ​RequestA​ and ​RequestZ​ for the same user are being processed concurrently"
+  For my current solution, I am using testMultipleRequestsOutOfOrder2() to test this case, but I am still feeling not
+  100% comfortable with this scenario.
