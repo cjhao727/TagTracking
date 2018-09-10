@@ -10,7 +10,6 @@ import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.junit.Assert.assertEquals;
@@ -30,62 +29,62 @@ public class TagTrackingServerTest {
     }
 
     @Test
-    public void givenInValidJsonString() {
+    public void testInvalidJsonString() {
         TagTrackingClient tagTrackingClient = new TagTrackingClient();
         tagTrackingClient.startConnection(LOCAL_HOST, port);
 
-        String testJsonMsg = tagTrackingClient.sendMessage("({})");
+        String testJsonResponse = tagTrackingClient.sendMessage("({})");
         String expectedJsonOutput = "{\"error\":\"java.lang.IllegalStateException: Expected BEGIN_OBJECT but was STRING at line 1 column 1 path $\"}";
-        assertEquals(expectedJsonOutput, testJsonMsg);
-        tagTrackingClient.stopConnection();
-    }
 
-    @Test
-    public void givenSingleRequest() {
-        TagTrackingClient tagTrackingClient = new TagTrackingClient();
-        tagTrackingClient.startConnection(LOCAL_HOST, port);
-
-        String jsonInput = "{\"user\": \"Secret Squirrel\", \"add\": [\"beyhive_member\", \"timbers_army\", \"jojo\", \"maodan\"], \"remove\": [\"maodan\"], \"timestamp\": \"2018-08-10T06:49:04.430Z\"}";
-        String jsonMsg = tagTrackingClient.sendMessage(jsonInput);
-
-        String jsonOutput = "{\"user\":\"Secret Squirrel\",\"tags\":[\"beyhive_member\",\"timbers_army\",\"jojo\"]}";
-
-        assertEquals(jsonOutput, jsonMsg);
+        assertEquals(expectedJsonOutput, testJsonResponse);
 
         tagTrackingClient.stopConnection();
     }
 
     @Test
-    public void givenMultipleRequestsInOrder() {
+    public void testSingleRequest() {
         TagTrackingClient tagTrackingClient = new TagTrackingClient();
         tagTrackingClient.startConnection(LOCAL_HOST, port);
 
-        String jsonInput = "{\"user\": \"Secret Squirrel\", \"add\": [\"beyhive_member\", \"timbers_army\", \"jojo\", \"maodan\"], \"remove\": [\"maodan\"], \"timestamp\": \"2018-08-10T06:49:04.430Z\"}";
-        String jsonInput2 = "{\"user\": \"Secret Squirrel\", \"add\": [\"beyhive_member\", \"timbers_army\", \"jojo\", \"maodan\"], \"remove\": [\"jojo\"], \"timestamp\": \"2018-08-10T06:49:04.440Z\"}";
-        String jsonMsg = tagTrackingClient.sendMessage(jsonInput);
-        String jsonMsg2 = tagTrackingClient.sendMessage(jsonInput2);
+        String testJsonInput = "{\"user\": \"Secret Squirrel\", \"add\": [\"beyhive_member\", \"timbers_army\", \"jojo\", \"maodan\"], \"remove\": [\"maodan\"], \"timestamp\": \"2018-08-10T06:49:04.430Z\"}";
+        String testJsonResponse = tagTrackingClient.sendMessage(testJsonInput);
+        String expectedJsonOutput = "{\"user\":\"Secret Squirrel\",\"tags\":[\"beyhive_member\",\"timbers_army\",\"jojo\"]}";
 
-        String jsonOutput = "{\"user\":\"Secret Squirrel\",\"tags\":[\"beyhive_member\",\"timbers_army\",\"jojo\"]}";
-        String jsonOutput2 = "{\"user\":\"Secret Squirrel\",\"tags\":[\"beyhive_member\",\"timbers_army\",\"maodan\"]}";
-
-        assertEquals(jsonOutput, jsonMsg);
-        assertEquals(jsonOutput2, jsonMsg2);
+        assertEquals(expectedJsonOutput, testJsonResponse);
 
         tagTrackingClient.stopConnection();
     }
 
     @Test
-    public void givenMultipleRequestsOutOfOrder() {
+    public void testMultipleRequestsInOrder() {
         TagTrackingClient tagTrackingClient = new TagTrackingClient();
         tagTrackingClient.startConnection(LOCAL_HOST, port);
 
-        String request1 = "{\"user\": \"Siri\", \"add\": [\"jojo\"], \"remove\": [], \"timestamp\": \"2018-08-10T06:49:04.420Z\"}";
-        String request2 = "{\"user\": \"Siri\", \"add\": [\"jojo\"], \"remove\": [], \"timestamp\": \"2018-08-10T06:49:04.410Z\"}";
-        String request3 = "{\"user\": \"Siri\", \"add\": [], \"remove\": [\"jojo\"], \"timestamp\": \"2018-08-10T06:49:04.415Z\"}";
+        String testJsonInput = "{\"user\": \"Secret Squirrel\", \"add\": [\"beyhive_member\", \"timbers_army\", \"jojo\", \"maodan\"], \"remove\": [\"maodan\"], \"timestamp\": \"2018-08-10T06:49:04.430Z\"}";
+        String testJsonInput2 = "{\"user\": \"Secret Squirrel\", \"add\": [\"beyhive_member\", \"timbers_army\", \"jojo\", \"maodan\"], \"remove\": [\"jojo\"], \"timestamp\": \"2018-08-10T06:49:04.440Z\"}";
+        String testJsonResponse = tagTrackingClient.sendMessage(testJsonInput);
+        String testJsonResponse2 = tagTrackingClient.sendMessage(testJsonInput2);
+        String expectedJsonOutput = "{\"user\":\"Secret Squirrel\",\"tags\":[\"beyhive_member\",\"timbers_army\",\"jojo\"]}";
+        String expectedJsonOutput2 = "{\"user\":\"Secret Squirrel\",\"tags\":[\"beyhive_member\",\"timbers_army\",\"maodan\"]}";
 
-        String testJsonMsg1 = tagTrackingClient.sendMessage(request1);
-        String testJsonMsg2 = tagTrackingClient.sendMessage(request2);
-        String testJsonMsg3 = tagTrackingClient.sendMessage(request3);
+        assertEquals(expectedJsonOutput, testJsonResponse);
+        assertEquals(expectedJsonOutput2, testJsonResponse2);
+
+        tagTrackingClient.stopConnection();
+    }
+
+    @Test
+    public void testMultipleRequestsOutOfOrder() {
+        TagTrackingClient tagTrackingClient = new TagTrackingClient();
+        tagTrackingClient.startConnection(LOCAL_HOST, port);
+
+        String testRequest1 = "{\"user\": \"Siri\", \"add\": [\"jojo\"], \"remove\": [], \"timestamp\": \"2018-08-10T06:49:04.420Z\"}";
+        String testRequest2 = "{\"user\": \"Siri\", \"add\": [\"jojo\"], \"remove\": [], \"timestamp\": \"2018-08-10T06:49:04.410Z\"}";
+        String testRequest3 = "{\"user\": \"Siri\", \"add\": [], \"remove\": [\"jojo\"], \"timestamp\": \"2018-08-10T06:49:04.415Z\"}";
+
+        String testJsonMsg1 = tagTrackingClient.sendMessage(testRequest1);
+        String testJsonMsg2 = tagTrackingClient.sendMessage(testRequest2);
+        String testJsonMsg3 = tagTrackingClient.sendMessage(testRequest3);
 
         String expectedJsonOutput = "{\"user\":\"Siri\",\"tags\":[\"jojo\"]}";
 
@@ -97,27 +96,26 @@ public class TagTrackingServerTest {
     }
 
     @Test
-    public void givenMultipleRequestsOutOfOrder2() {
+    public void testMultipleRequestsOutOfOrder2() {
         TagTrackingClient tagTrackingClient = new TagTrackingClient();
         tagTrackingClient.startConnection(LOCAL_HOST, port);
 
-        String jsonInput2 = "{\"user\": \"Secret Squirrel\", \"add\": [\"beyhive_member\", \"timbers_army\", \"jojo\", \"maodan\"], \"remove\": [\"jojo\"], \"timestamp\": \"2018-08-10T06:49:04.440Z\"}";
-        String jsonInput = "{\"user\": \"Secret Squirrel\", \"add\": [\"beyhive_member\", \"timbers_army\", \"jojo\", \"maodan\"], \"remove\": [\"maodan\"], \"timestamp\": \"2018-08-10T06:49:04.430Z\"}";
+        String testRequest2 = "{\"user\": \"Secret Squirrel\", \"add\": [\"beyhive_member\", \"timbers_army\", \"jojo\", \"maodan\"], \"remove\": [\"jojo\"], \"timestamp\": \"2018-08-10T06:49:04.440Z\"}";
+        String testRequest = "{\"user\": \"Secret Squirrel\", \"add\": [\"beyhive_member\", \"timbers_army\", \"jojo\", \"maodan\"], \"remove\": [\"maodan\"], \"timestamp\": \"2018-08-10T06:49:04.430Z\"}";
 
-        String jsonMsg2 = tagTrackingClient.sendMessage(jsonInput2);
-        String jsonMsg = tagTrackingClient.sendMessage(jsonInput);
+        String testJsonMsg2 = tagTrackingClient.sendMessage(testRequest2);
+        String testJsonMsg = tagTrackingClient.sendMessage(testRequest);
 
-        String jsonOutput = "{\"user\":\"Secret Squirrel\",\"tags\":[\"beyhive_member\",\"timbers_army\",\"maodan\"]}";
+        String expectedJsonOutput = "{\"user\":\"Secret Squirrel\",\"tags\":[\"beyhive_member\",\"timbers_army\",\"maodan\"]}";
 
-        assertEquals(jsonOutput, jsonMsg2);
-        assertEquals(jsonOutput, jsonMsg);
-
+        assertEquals(expectedJsonOutput, testJsonMsg2);
+        assertEquals(expectedJsonOutput, testJsonMsg);
 
         tagTrackingClient.stopConnection();
     }
 
     @Test
-    public void givenDelayedRequests() {
+    public void testDelayedRequests() {
         TagTrackingClient tagTrackingClient = new TagTrackingClient();
         tagTrackingClient.startConnection(LOCAL_HOST, port);
 
@@ -139,7 +137,7 @@ public class TagTrackingServerTest {
     @Test
     public void testServerCapacity() {
         String jsonInput = "{\"user\": \"Secret Squirrel\", \"add\": [\"beyhive_member\", \"timbers_army\", \"jojo\", \"maodan\"], \"remove\": [\"maodan\"], \"timestamp\": \"2018-08-10T06:49:04.430Z\"}";
-        String jsonOutput = "{\"user\":\"Secret Squirrel\",\"tags\":[\"beyhive_member\",\"timbers_army\",\"jojo\"]}";
+        String expectedJsonOutput = "{\"user\":\"Secret Squirrel\",\"tags\":[\"beyhive_member\",\"timbers_army\",\"jojo\"]}";
 
         final int clientNum = 100;
 
@@ -153,8 +151,7 @@ public class TagTrackingServerTest {
 
         tagTrackingClients.forEach(connectedClient -> {
             String jsonMsg = connectedClient.sendMessage(jsonInput);
-            //System.out.println(jsonMsg); - verify out put.
-            assertEquals(jsonOutput, jsonMsg);
+            assertEquals(expectedJsonOutput, jsonMsg);
         });
 
         tagTrackingClients.forEach(TagTrackingClient::stopConnection);
