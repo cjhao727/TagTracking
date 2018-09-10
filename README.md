@@ -143,5 +143,5 @@ Due to the time, here are some items I think I could improve in the future.
 - If I get time, I'd like to play with NIO2 to build the application.
 - Refactor my current more to follow best coding and naming practices. 
 - May need a better understanding of "If two requests ​RequestA​ and ​RequestZ​ for the same user are being processed concurrently"
-  For my current solution, I am using testMultipleRequestsOutOfOrder2() to test this case, but I am still feeling not
+  For my current solution, I am using testMultipleRequestsOutOfOrder2() to test this case, but I am still not feeling
   100% comfortable with this scenario.
