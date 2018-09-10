@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class UserDaoImpl implements Dao<UserRecord> {
-    //mimic DB, thread Safe list
+    //mimic DB
     private List<UserRecord> userRecords = new CopyOnWriteArrayList<>();
 
     @Override

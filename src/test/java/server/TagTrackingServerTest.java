@@ -2,6 +2,7 @@ package server;
 
 import com.j.client.TagTrackingClient;
 import com.j.server.TagTrackingServer;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 
