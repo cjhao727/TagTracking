@@ -77,6 +77,8 @@ Start my Maven project.
     }
     ```
 - Implement a DAO layer to mimic the behaviors related to data container.
+  * one specific reason is to support the following scenario.
+  "If two requests ​RequestA​ and ​RequestZ​ for the same user are being processed concurrently".
 
 ---
 #### Testing
@@ -142,6 +144,5 @@ Due to the time, here are some items I think I could improve in the future.
 - Automated test. I'd like to add more test case to increase the code coverage.
 - If I get time, I'd like to play with NIO2 to build the application.
 - Refactor my current more to follow best coding and naming practices. 
-- May need a better understanding of "If two requests ​RequestA​ and ​RequestZ​ for the same user are being processed concurrently"
-  For my current solution, I am using testMultipleRequestsOutOfOrder2() to test this case, but I am still not feeling
-  100% comfortable with this scenario.
+- An automated test of "If two requests ​RequestA​ and ​RequestZ​ for the same user are being processed concurrently"
+  Similar to testMultipleRequestsOutOfOrder2(). But I am still not feeling 100% comfortable with manual test here.
