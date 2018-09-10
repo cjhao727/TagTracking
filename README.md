@@ -50,7 +50,7 @@ Regard to TagRequest and TagResponse, I am considering Set<> and List<>. But I d
     ```json
     {"user": "Siri", "add": ["jojo"], "remove": ["jojo"], "timestamp": "2018-08-10T06:49:04.420Z"}
     ```
-    And the following case won't need to be handled.
+    but not look like this
     ```json
     {"user": "Siri", "add": ["jojo"], "remove": [], "timestamp": "2018-08-10T06:49:04.420Z"}
     {"user": "Siri", "add": [], "remove": ["jojo"], "timestamp": "2018-08-10T06:49:04.420Z"}
