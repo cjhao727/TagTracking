@@ -3,7 +3,7 @@ package com.j;
 import com.j.server.TagTrackingServer;
 
 public class Application {
-    private static final int port = 5555;
+    private static final int port = 9527;
     public static void main(String[] args) {
 
         TagTrackingServer tagTrackingServer = new TagTrackingServer();

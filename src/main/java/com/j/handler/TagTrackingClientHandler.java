@@ -17,7 +17,6 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -104,7 +103,8 @@ public class TagTrackingClientHandler extends Thread {
             tagTrackingClientSocket.close();
 
         } catch (IOException e) {
-            e.printStackTrace();
+            String errorJsonResponse = buildErrorJsonResponse(e);
+            out.println(gson.toJson(errorJsonResponse));
         } catch (JsonSyntaxException e) {
             //If any issues arise, such as a request cannot be parsed, the server should instead write an error response JSON body, compressed to one line
             String errorJsonResponse = buildErrorJsonResponse(e);
@@ -113,6 +113,11 @@ public class TagTrackingClientHandler extends Thread {
     }
 
     private String buildErrorJsonResponse(JsonSyntaxException e) {
+        ErrorResponse errorResponse = new ErrorResponse(e.getMessage());
+        return gson.toJson(errorResponse);
+    }
+
+    private String buildErrorJsonResponse(IOException e) {
         ErrorResponse errorResponse = new ErrorResponse(e.getMessage());
         return gson.toJson(errorResponse);
     }
