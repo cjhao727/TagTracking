@@ -122,7 +122,7 @@ Another alternative is to import this project into Intellij, and simply run the 
 
 #### Improvement
 
-Due the time, here are some items I think I could improve in the future.
+Due to the time, here are some items I think I could improve in the future.
 
 - Error handling. During my manual test, I found my application cannot handle empty input very well.
 - Automated test. I'd like to add more test case to increase the code coverage.
