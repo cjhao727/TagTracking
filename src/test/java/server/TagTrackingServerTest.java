@@ -34,8 +34,21 @@ public class TagTrackingServerTest {
         TagTrackingClient tagTrackingClient = new TagTrackingClient();
         tagTrackingClient.startConnection(LOCAL_HOST, port);
 
-        String testJsonResponse = tagTrackingClient.sendMessage("({})");
+        String testJsonResponse = tagTrackingClient.sendRequest("({})");
         String expectedJsonOutput = "{\"error\":\"java.lang.IllegalStateException: Expected BEGIN_OBJECT but was STRING at line 1 column 1 path $\"}";
+
+        assertEquals(expectedJsonOutput, testJsonResponse);
+
+        tagTrackingClient.stopConnection();
+    }
+
+    @Test
+    public void testEmptyInput() {
+        TagTrackingClient tagTrackingClient = new TagTrackingClient();
+        tagTrackingClient.startConnection(LOCAL_HOST, port);
+
+        String testJsonResponse = tagTrackingClient.sendRequest("");
+        String expectedJsonOutput = "";
 
         assertEquals(expectedJsonOutput, testJsonResponse);
 
@@ -48,7 +61,7 @@ public class TagTrackingServerTest {
         tagTrackingClient.startConnection(LOCAL_HOST, port);
 
         String testJsonInput = "{\"user\": \"Secret Squirrel\", \"add\": [\"beyhive_member\", \"timbers_army\", \"jojo\", \"maodan\"], \"remove\": [\"maodan\"], \"timestamp\": \"2018-08-10T06:49:04.430Z\"}";
-        String testJsonResponse = tagTrackingClient.sendMessage(testJsonInput);
+        String testJsonResponse = tagTrackingClient.sendRequest(testJsonInput);
         String expectedJsonOutput = "{\"user\":\"Secret Squirrel\",\"tags\":[\"beyhive_member\",\"timbers_army\",\"jojo\"]}";
 
         assertEquals(expectedJsonOutput, testJsonResponse);
@@ -63,8 +76,8 @@ public class TagTrackingServerTest {
 
         String testJsonInput = "{\"user\": \"Secret Squirrel\", \"add\": [\"beyhive_member\", \"timbers_army\", \"jojo\", \"maodan\"], \"remove\": [\"maodan\"], \"timestamp\": \"2018-08-10T06:49:04.430Z\"}";
         String testJsonInput2 = "{\"user\": \"Secret Squirrel\", \"add\": [\"beyhive_member\", \"timbers_army\", \"jojo\", \"maodan\"], \"remove\": [\"jojo\"], \"timestamp\": \"2018-08-10T06:49:04.440Z\"}";
-        String testJsonResponse = tagTrackingClient.sendMessage(testJsonInput);
-        String testJsonResponse2 = tagTrackingClient.sendMessage(testJsonInput2);
+        String testJsonResponse = tagTrackingClient.sendRequest(testJsonInput);
+        String testJsonResponse2 = tagTrackingClient.sendRequest(testJsonInput2);
         String expectedJsonOutput = "{\"user\":\"Secret Squirrel\",\"tags\":[\"beyhive_member\",\"timbers_army\",\"jojo\"]}";
         String expectedJsonOutput2 = "{\"user\":\"Secret Squirrel\",\"tags\":[\"beyhive_member\",\"timbers_army\",\"maodan\"]}";
 
@@ -83,9 +96,9 @@ public class TagTrackingServerTest {
         String testRequest2 = "{\"user\": \"Siri\", \"add\": [\"jojo\"], \"remove\": [], \"timestamp\": \"2018-08-10T06:49:04.410Z\"}";
         String testRequest3 = "{\"user\": \"Siri\", \"add\": [], \"remove\": [\"jojo\"], \"timestamp\": \"2018-08-10T06:49:04.415Z\"}";
 
-        String testJsonMsg1 = tagTrackingClient.sendMessage(testRequest1);
-        String testJsonMsg2 = tagTrackingClient.sendMessage(testRequest2);
-        String testJsonMsg3 = tagTrackingClient.sendMessage(testRequest3);
+        String testJsonMsg1 = tagTrackingClient.sendRequest(testRequest1);
+        String testJsonMsg2 = tagTrackingClient.sendRequest(testRequest2);
+        String testJsonMsg3 = tagTrackingClient.sendRequest(testRequest3);
 
         String expectedJsonOutput = "{\"user\":\"Siri\",\"tags\":[\"jojo\"]}";
 
@@ -104,8 +117,8 @@ public class TagTrackingServerTest {
         String testRequest2 = "{\"user\": \"Secret Squirrel\", \"add\": [\"beyhive_member\", \"timbers_army\", \"jojo\", \"maodan\"], \"remove\": [\"jojo\"], \"timestamp\": \"2018-08-10T06:49:04.440Z\"}";
         String testRequest = "{\"user\": \"Secret Squirrel\", \"add\": [\"beyhive_member\", \"timbers_army\", \"jojo\", \"maodan\"], \"remove\": [\"maodan\"], \"timestamp\": \"2018-08-10T06:49:04.430Z\"}";
 
-        String testJsonMsg2 = tagTrackingClient.sendMessage(testRequest2);
-        String testJsonMsg = tagTrackingClient.sendMessage(testRequest);
+        String testJsonMsg2 = tagTrackingClient.sendRequest(testRequest2);
+        String testJsonMsg = tagTrackingClient.sendRequest(testRequest);
 
         String expectedJsonOutput = "{\"user\":\"Secret Squirrel\",\"tags\":[\"beyhive_member\",\"timbers_army\",\"maodan\"]}";
 
@@ -123,8 +136,8 @@ public class TagTrackingServerTest {
         String request1 = "{\"user\": \"Siri\", \"add\": [], \"remove\": [\"jojo\"], \"timestamp\": \"2018-08-10T06:49:04.420Z\"}";
         String request2 = "{\"user\": \"Siri\", \"add\": [\"jojo\"], \"remove\": [], \"timestamp\": \"2018-08-10T06:49:04.410Z\"}";
 
-        String testJsonMsg1 = tagTrackingClient.sendMessage(request1);
-        String testJsonMsg2 = tagTrackingClient.sendMessage(request2);
+        String testJsonMsg1 = tagTrackingClient.sendRequest(request1);
+        String testJsonMsg2 = tagTrackingClient.sendRequest(request2);
 
         String expectedJsonOutput = "{\"user\":\"Siri\",\"tags\":[]}";
 
@@ -151,7 +164,7 @@ public class TagTrackingServerTest {
                 });
 
         tagTrackingClients.forEach(connectedClient -> {
-            String jsonMsg = connectedClient.sendMessage(jsonInput);
+            String jsonMsg = connectedClient.sendRequest(jsonInput);
             assertEquals(expectedJsonOutput, jsonMsg);
         });
 

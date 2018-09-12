@@ -23,7 +23,7 @@ public class TagTrackingClient {
         }
     }
 
-    public String sendMessage(String msg) {
+    public String sendRequest(String msg) {
         try {
             out.println(msg);
             return in.readLine();

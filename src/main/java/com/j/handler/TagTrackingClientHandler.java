@@ -40,6 +40,9 @@ public class TagTrackingClientHandler extends Thread {
             BufferedReader in = new BufferedReader(new InputStreamReader(tagTrackingClientSocket.getInputStream()));
             String inputLine;
             gson = new Gson();
+
+            if (in.readLine().isEmpty()) out.println();
+
             while ((inputLine = in.readLine()) != null) {
                 TagRequest tagRequest = gson.fromJson(inputLine, TagRequest.class);
 
