@@ -41,9 +41,9 @@ public class TagTrackingClientHandler extends Thread {
             String inputLine;
             gson = new Gson();
 
-            if (in.readLine().isEmpty()) out.println();
-
             while ((inputLine = in.readLine()) != null) {
+                if (inputLine.equals("")) out.println("Empty request received");
+
                 TagRequest tagRequest = gson.fromJson(inputLine, TagRequest.class);
 
                 String currentUserId = tagRequest.getUser();
@@ -89,6 +89,8 @@ public class TagTrackingClientHandler extends Thread {
         } catch (JsonSyntaxException e) {
             String errorJsonResponse = buildErrorJsonResponse(e);
             out.println(errorJsonResponse);
+        } catch (NullPointerException e) {
+            System.out.println(e.getMessage());
         }
     }
 

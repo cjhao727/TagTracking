@@ -30,6 +30,19 @@ public class TagTrackingServerTest {
     }
 
     @Test
+    public void testEmptyInput() {
+        TagTrackingClient tagTrackingClient = new TagTrackingClient();
+        tagTrackingClient.startConnection(LOCAL_HOST, port);
+
+        String testJsonResponse = tagTrackingClient.sendRequest("");
+        String expectedJsonOutput = "Empty request received";
+
+        assertEquals(expectedJsonOutput, testJsonResponse);
+
+        tagTrackingClient.stopConnection();
+    }
+
+    @Test
     public void testInvalidJsonString() {
         TagTrackingClient tagTrackingClient = new TagTrackingClient();
         tagTrackingClient.startConnection(LOCAL_HOST, port);
@@ -42,18 +55,7 @@ public class TagTrackingServerTest {
         tagTrackingClient.stopConnection();
     }
 
-    @Test
-    public void testEmptyInput() {
-        TagTrackingClient tagTrackingClient = new TagTrackingClient();
-        tagTrackingClient.startConnection(LOCAL_HOST, port);
 
-        String testJsonResponse = tagTrackingClient.sendRequest("");
-        String expectedJsonOutput = "";
-
-        assertEquals(expectedJsonOutput, testJsonResponse);
-
-        tagTrackingClient.stopConnection();
-    }
 
     @Test
     public void testSingleRequest() {
